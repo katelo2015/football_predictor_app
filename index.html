@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Football Match Predictor</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2rem; background: #f2f2f2; }
+    h1 { color: #333; }
+    input, button { margin: 0.5rem 0; padding: 0.5rem; }
+    #result { margin-top: 1rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Football Match Predictor</h1>
+
+  <!-- Add your input fields as needed -->
+  <label>Home Team Encoded: <input id="homeTeam" type="number" /></label><br/>
+  <label>Away Team Encoded: <input id="awayTeam" type="number" /></label><br/>
+  <label>Home Form: <input id="homeForm" type="number" /></label><br/>
+  <label>Away Form: <input id="awayForm" type="number" /></label><br/>
+  
+  <button onclick="predict()">Predict Match Outcome</button>
+
+  <div id="result">Prediction: ...</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script>
+    let model;
+
+    async function loadModel() {
+      model = await tf.loadLayersModel('model/model.json');
+      console.log('Model loaded.');
+    }
+
+    async function predict() {
+      if (!model) {
+        document.getElementById('result').innerText = 'Model not loaded yet.';
+        return;
+      }
+
+      const home = parseFloat(document.getElementById('homeTeam').value);
+      const away = parseFloat(document.getElementById('awayTeam').value);
+      const homeForm = parseFloat(document.getElementById('homeForm').value);
+      const awayForm = parseFloat(document.getElementById('awayForm').value);
+
+      const inputTensor = tf.tensor2d([[home, away, homeForm, awayForm]]);
+      const prediction = model.predict(inputTensor);
+      const result = await prediction.data();
+
+      document.getElementById('result').innerText = 'Prediction: ' + result;
+    }
+
+    loadModel();
+  </script>
+</body>
+</html>
